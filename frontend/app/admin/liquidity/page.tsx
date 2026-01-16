@@ -1,6 +1,6 @@
 'use client'
 
-import { useAccount } from 'wagmi'
+import { useAccount, useWaitForTransactionReceipt, usePublicClient } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
@@ -37,6 +37,7 @@ export default function AdminLiquidityPage() {
   const { address, isConnected } = useAccount()
   const router = useRouter()
   const isAdmin = useIsAdmin()
+  const publicClient = usePublicClient()
   
   const { data: contractBalance = BigInt(0), refetch: refetchBalance } = useContractBalance()
   const { data: totalDeposited = BigInt(0) } = useTotalLiquidityDeposited()
@@ -87,10 +88,24 @@ export default function AdminLiquidityPage() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-blue-50">
-        <div className="text-center space-y-6">
+        <div className="text-center space-y-6 max-w-2xl px-6">
           <AlertTriangle className="w-16 h-16 mx-auto text-yellow-500" />
           <h1 className="text-3xl font-bold text-gray-900">Access Denied</h1>
           <p className="text-gray-600">This wallet is not authorized for admin access</p>
+          <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mt-4">
+            <p className="text-sm text-gray-700 font-semibold mb-2">⚠️ Required Wallet Address:</p>
+            <code className="text-xs bg-white px-3 py-2 rounded border border-yellow-300 block">
+              0x74E36d4A7b33057e3928CE4bf4C8C53A93361C34
+            </code>
+            <p className="text-xs text-gray-600 mt-3">
+              Only the deployer wallet can deposit/withdraw liquidity.<br/>
+              Please switch to this wallet in MetaMask.
+            </p>
+          </div>
+          <div className="mt-4">
+            <p className="text-sm text-gray-500">Your current wallet:</p>
+            <code className="text-xs bg-gray-100 px-3 py-1 rounded">{address}</code>
+          </div>
         </div>
       </div>
     )
@@ -105,12 +120,19 @@ export default function AdminLiquidityPage() {
     setError(null)
     setSuccess(null)
     
+    if (!amount || parseFloat(amount) <= 0) {
+      setError('Please enter a valid amount')
+      toast.error('Please enter a valid amount')
+      return
+    }
+    
     const toastId = toast.loading('Approving USDC...')
     
     try {
-      const amountBigInt = parseUnits(amount || '0', 6)
+      const amountBigInt = parseUnits(amount, 6)
       
-      await approveUSDC({
+      // Send transaction and get hash
+      const hash = await approveUSDC({
         address: USDC_ADDRESS as `0x${string}`,
         abi: [
           {
@@ -128,14 +150,33 @@ export default function AdminLiquidityPage() {
         args: [BNPL_CORE_ADDRESS as `0x${string}`, amountBigInt],
       })
       
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      await refetchAllowance()
-      const successMsg = 'USDC approved! You can now deposit.'
-      toast.success(successMsg, { id: toastId })
-      setSuccess(successMsg)
-    } catch (err) {
+      // Wait for actual transaction confirmation on-chain
+      toast.loading('⏳ Waiting for blockchain confirmation...', { id: toastId })
+      
+      if (!publicClient) {
+        throw new Error('Public client not available')
+      }
+      
+      const receipt = await publicClient.waitForTransactionReceipt({ hash })
+      
+      if (receipt.status === 'success') {
+        // Refetch allowance to update UI
+        await refetchAllowance()
+        
+        const successMsg = '✅ USDC approved! You can now deposit.'
+        toast.success(successMsg, { id: toastId })
+        setSuccess(successMsg)
+        setNeedsApproval(false)
+      } else {
+        throw new Error('Transaction failed on blockchain')
+      }
+    } catch (err: any) {
       console.error('Approval failed:', err)
-      const errorMsg = 'Failed to approve USDC. Please try again.'
+      const errorMsg = err?.message?.includes('rejected') 
+        ? 'Transaction rejected by user' 
+        : err?.message?.includes('failed')
+        ? 'Transaction failed on blockchain'
+        : 'Failed to approve USDC. Please try again.'
       toast.error(errorMsg, { id: toastId })
       setError(errorMsg)
     }
@@ -151,12 +192,34 @@ export default function AdminLiquidityPage() {
       return
     }
     
+    // Check if user has enough USDC
+    if (parseFloat(amount) > userBalance) {
+      setError(`Insufficient USDC balance. You have ${userBalance.toFixed(2)} USDC`)
+      toast.error('Insufficient USDC balance')
+      return
+    }
+    
+    // Check if approval is still needed
+    const amountBigInt = parseUnits(amount, 6)
+    if (allowance < amountBigInt) {
+      setError('Please approve USDC first')
+      toast.error('Please approve USDC first')
+      return
+    }
+    
     const toastId = toast.loading(`Depositing ${amount} USDC...`)
     
     try {
-      const amountBigInt = parseUnits(amount, 6)
+      console.log('🔍 Deposit Debug Info:')
+      console.log('- Wallet address:', address)
+      console.log('- Amount to deposit:', amount, 'USDC')
+      console.log('- Amount in wei:', amountBigInt.toString())
+      console.log('- User USDC balance:', userBalance.toFixed(6), 'USDC')
+      console.log('- Current allowance:', (Number(allowance) / 1e6).toFixed(6), 'USDC')
+      console.log('- Contract address:', BNPL_CORE_ADDRESS)
       
-      await depositLiquidity({
+      // Send transaction and get hash
+      const hash = await depositLiquidity({
         address: BNPL_CORE_ADDRESS as `0x${string}`,
         abi: [
           {
@@ -171,16 +234,56 @@ export default function AdminLiquidityPage() {
         args: [amountBigInt],
       })
       
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      await Promise.all([refetchBalance(), refetchUserBalance(), refetchAllowance()])
-      const successMsg = `Successfully deposited ${amount} USDC!`
-      toast.success(successMsg, { id: toastId })
-      setSuccess(successMsg)
-      setAmount('')
-    } catch (err) {
-      console.error('Deposit failed:', err)
-      const errorMsg = 'Failed to deposit. Please try again.'
-      toast.error(errorMsg, { id: toastId })
+      // Wait for actual transaction confirmation on-chain
+      toast.loading('⏳ Waiting for blockchain confirmation...', { id: toastId })
+      
+      if (!publicClient) {
+        throw new Error('Public client not available')
+      }
+      
+      const receipt = await publicClient.waitForTransactionReceipt({ hash })
+      
+      if (receipt.status === 'success') {
+        // Refetch all relevant data
+        await Promise.all([refetchBalance(), refetchUserBalance(), refetchAllowance()])
+        
+        const successMsg = `✅ Successfully deposited ${amount} USDC!`
+        toast.success(successMsg, { id: toastId })
+        setSuccess(successMsg)
+        setAmount('')
+      } else {
+        throw new Error('Transaction failed on blockchain')
+      }
+    } catch (err: any) {
+      console.error('❌ Deposit failed - Full error:', err)
+      console.error('Error message:', err?.message)
+      console.error('Error shortMessage:', err?.shortMessage)
+      console.error('Error details:', err?.details)
+      console.error('Error cause:', err?.cause)
+      
+      let errorMsg = 'Failed to deposit. Please try again.'
+      
+      if (err?.message?.includes('rejected') || err?.message?.includes('denied')) {
+        errorMsg = 'Transaction rejected by user'
+      } else if (err?.message?.includes('OwnableUnauthorizedAccount') || err?.shortMessage?.includes('Ownable')) {
+        errorMsg = '❌ Wallet is not the contract owner. Only the deployer wallet can deposit liquidity.'
+      } else if (err?.message?.includes('insufficient funds') || err?.message?.includes('insufficient balance')) {
+        errorMsg = 'Insufficient funds for transaction (check gas + USDC balance)'
+      } else if (err?.message?.includes('ERC20: insufficient allowance') || err?.message?.includes('allowance')) {
+        errorMsg = 'Insufficient USDC allowance - please approve again'
+      } else if (err?.shortMessage) {
+        errorMsg = `Transaction failed: ${err.shortMessage}`
+      } else if (err?.message) {
+        // Extract revert reason if available
+        const revertMatch = err.message.match(/reverted with reason string '([^']+)'/)
+        if (revertMatch) {
+          errorMsg = `Contract error: ${revertMatch[1]}`
+        } else {
+          errorMsg = err.message.substring(0, 100)
+        }
+      }
+      
+      toast.error(errorMsg, { id: toastId, duration: 6000 })
       setError(errorMsg)
     }
   }
@@ -196,7 +299,7 @@ export default function AdminLiquidityPage() {
     }
     
     if (parseFloat(amount) > balance) {
-      setError('Insufficient contract balance')
+      setError(`Insufficient contract balance. Available: ${balance.toFixed(2)} USDC`)
       toast.error('Insufficient contract balance')
       return
     }
@@ -206,7 +309,8 @@ export default function AdminLiquidityPage() {
     try {
       const amountBigInt = parseUnits(amount, 6)
       
-      await withdrawLiquidity({
+      // Send transaction and get hash
+      const hash = await withdrawLiquidity({
         address: BNPL_CORE_ADDRESS as `0x${string}`,
         abi: [
           {
@@ -221,15 +325,35 @@ export default function AdminLiquidityPage() {
         args: [amountBigInt],
       })
       
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      await Promise.all([refetchBalance(), refetchUserBalance()])
-      const successMsg = `Successfully withdrew ${amount} USDC!`
-      toast.success(successMsg, { id: toastId })
-      setSuccess(successMsg)
-      setAmount('')
-    } catch (err) {
+      // Wait for actual transaction confirmation on-chain
+      toast.loading('⏳ Waiting for blockchain confirmation...', { id: toastId })
+      
+      if (!publicClient) {
+        throw new Error('Public client not available')
+      }
+      
+      const receipt = await publicClient.waitForTransactionReceipt({ hash })
+      
+      if (receipt.status === 'success') {
+        // Refetch balances
+        await Promise.all([refetchBalance(), refetchUserBalance()])
+        
+        const successMsg = `✅ Successfully withdrew ${amount} USDC!`
+        toast.success(successMsg, { id: toastId })
+        setSuccess(successMsg)
+        setAmount('')
+      } else {
+        throw new Error('Transaction failed on blockchain')
+      }
+    } catch (err: any) {
       console.error('Withdraw failed:', err)
-      const errorMsg = 'Failed to withdraw. Please try again.'
+      const errorMsg = err?.message?.includes('rejected')
+        ? 'Transaction rejected by user'
+        : err?.message?.includes('insufficient')
+        ? 'Insufficient contract balance'
+        : err?.message?.includes('failed')
+        ? 'Transaction failed on blockchain - check MetaMask for details'
+        : 'Failed to withdraw. Please try again.'
       toast.error(errorMsg, { id: toastId })
       setError(errorMsg)
     }
