@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { parseUnits } from 'viem'
+import { useRouter } from 'next/navigation'
 import { 
   useActiveLoan, 
   useRepayLoan, 
@@ -32,6 +33,7 @@ import toast from 'react-hot-toast'
 
 export default function RepayPage() {
   const { address, isConnected } = useAccount()
+  const router = useRouter()
   const { data: activeLoan, isLoading: loanLoading, refetch: refetchLoan } = useActiveLoan(address)
   const { data: hasLoan = false, isLoading: hasLoanLoading } = useHasActiveLoan(address)
   const { data: allowance = BigInt(0), refetch: refetchAllowance } = useUSDCAllowance(address, BNPL_CORE_ADDRESS as `0x${string}`)
@@ -86,6 +88,17 @@ export default function RepayPage() {
       }
     }
   }, [loanLoading, hasActiveLoan, allowance, remainingBalance, paymentMode, installmentAmount, hasLoanLoading])
+
+  // Redirect to dashboard after successful repayment
+  useEffect(() => {
+    if (step === 'success') {
+      const redirectTimer = setTimeout(() => {
+        router.push('/dashboard')
+      }, 3000) // 3 second delay to show success message
+
+      return () => clearTimeout(redirectTimer)
+    }
+  }, [step, router])
 
   const handleApprove = async () => {
     setError(null)
@@ -565,19 +578,22 @@ export default function RepayPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h2>
                 <p className="text-gray-600 mb-2">Your loan has been repaid.</p>
-                <p className="text-green-600 font-semibold mb-6">
+                <p className="text-green-600 font-semibold mb-2">
                   {isEarlyPayment ? '+15 Trust Score points earned!' : '+10 Trust Score points earned!'}
+                </p>
+                <p className="text-sm text-gray-500 mb-6">
+                  Redirecting to dashboard in 3 seconds...
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Link
                     href="/dashboard"
-                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
                   >
-                    View Dashboard
+                    View Dashboard Now
                   </Link>
                   <Link
                     href="/shop"
-                    className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-blue-500"
+                    className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-blue-500 transition-all"
                   >
                     Continue Shopping
                   </Link>
