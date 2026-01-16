@@ -1,25 +1,29 @@
 'use client'
 
 import { useAccount } from 'wagmi'
-import { useTrustScore, useCreditLimit, useAvailableCredit } from '@/hooks/useContracts'
+import { useUserCreditInfo, useAvailableCredit } from '@/hooks/useContracts'
 import { TrendingUp, Shield } from 'lucide-react'
 import { TrustScoreCardSkeleton } from './SkeletonLoaders'
 
 export default function TrustScoreCard() {
   const { address } = useAccount()
   
-  const { data: trustScore = BigInt(0), isLoading: scoreLoading } = useTrustScore(address)
-  const { data: creditLimit = BigInt(0), isLoading: limitLoading } = useCreditLimit(address)
+  const { data: creditInfo, isLoading: infoLoading } = useUserCreditInfo(address)
   const { data: availableCredit = BigInt(0), isLoading: availLoading } = useAvailableCredit(address)
 
-  const score = Number(trustScore)
-  const formattedCreditLimit = (Number(creditLimit) / 1e6).toFixed(2)
+  // Parse credit info: [score, totalScore, walletBonus, zkBoost, creditLimit]
+  const creditData = creditInfo as readonly [bigint, bigint, bigint, bigint, bigint] | undefined
+  const totalScore = creditData ? Number(creditData[1]) : 0
+  const creditLimit = creditData ? Number(creditData[4]) : 0
+  
+  const formattedCreditLimit = (creditLimit / 1e6).toFixed(2)
   const formattedAvailableCredit = (Number(availableCredit) / 1e6).toFixed(2)
   
-  const isLoading = scoreLoading || limitLoading || availLoading
+  const isLoading = infoLoading || availLoading
   
-  // Calculate progress (max score for display purposes is 100)
-  const progress = Math.min((score / 100) * 100, 100)
+  // Calculate progress (max score is 190 for total score)
+  const maxScore = 190
+  const progress = Math.min((totalScore / maxScore) * 100, 100)
   const circumference = 2 * Math.PI * 45 // radius = 45
 
   if (isLoading) {
@@ -43,8 +47,8 @@ export default function TrustScoreCard() {
         {/* Score Display */}
         <div className="space-y-3">
           <div>
-            <p className="text-4xl font-bold text-gray-900">{score}</p>
-            <p className="text-sm text-gray-500">points</p>
+            <p className="text-4xl font-bold text-gray-900">{totalScore}</p>
+            <p className="text-sm text-gray-500">/ 190 points</p>
           </div>
           
           <div className="space-y-1">
