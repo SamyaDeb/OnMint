@@ -6,11 +6,14 @@
 // Contract Addresses on Polygon Amoy
 export const ADMIN_ADDRESS = "0x74E36d4A7b33057e3928CE4bf4C8C53A93361C34";
 export const MERCHANT_ADDRESS = "0xF92e0D914c6Bbd5a1B51eB2C023a2c3977b7f4C4";
+// IMPORTANT: This MUST match the USDC address configured in BNPLCore contract!
 export const USDC_ADDRESS = "0x8B0180f2101c8260d49339abfEe87927412494B4";
 
-// Deployed Contract Addresses (fill after deployment)
-export const TRUST_SCORE_MANAGER_ADDRESS = process.env.NEXT_PUBLIC_TRUST_SCORE_MANAGER_ADDRESS || "";
-export const BNPL_CORE_ADDRESS = process.env.NEXT_PUBLIC_BNPL_CORE_ADDRESS || "";
+// Deployed Contract Addresses (Enhanced with Wallet Analyzer - Jan 16, 2026)
+export const TRUST_SCORE_MANAGER_ADDRESS = (process.env.NEXT_PUBLIC_TRUST_SCORE_MANAGER_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const BNPL_CORE_ADDRESS = (process.env.NEXT_PUBLIC_BNPL_CORE_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const WALLET_ANALYZER_ADDRESS = (process.env.NEXT_PUBLIC_WALLET_ANALYZER_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const ZK_VERIFIER_ADDRESS = (process.env.NEXT_PUBLIC_ZK_VERIFIER_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 
 // Network Configuration
 export const POLYGON_AMOY_CHAIN_ID = 80002;

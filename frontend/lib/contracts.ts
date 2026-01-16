@@ -113,6 +113,9 @@ export const TRUST_SCORE_MANAGER_ABI = [
     name: "getUserCreditInfo",
     outputs: [
       { internalType: "uint256", name: "score", type: "uint256" },
+      { internalType: "uint256", name: "totalScore", type: "uint256" },
+      { internalType: "uint256", name: "walletBonus", type: "uint256" },
+      { internalType: "uint256", name: "zkBoost", type: "uint256" },
       { internalType: "uint256", name: "creditLimit", type: "uint256" },
     ],
     stateMutability: "view",
