@@ -6,7 +6,7 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useCreditLimit, useHasActiveLoan } from '@/hooks/useContracts'
 import ProductCard from '@/components/ProductCard'
 import CheckoutModal from '@/components/CheckoutModal'
-import { ShoppingBag, Search, Filter, AlertCircle } from 'lucide-react'
+import { ShoppingBag, Search, AlertCircle, Wallet } from 'lucide-react'
 import Link from 'next/link'
 
 // Sample products - in real app would come from backend/IPFS
@@ -16,7 +16,7 @@ const products = [
     name: 'Digital Artwork NFT',
     description: 'Exclusive digital art piece by emerging Web3 artist',
     price: 0.99,
-    image: '🎨',
+    image: '/shop_img/digital art.jpeg',
     category: 'Art',
   },
   {
@@ -24,7 +24,7 @@ const products = [
     name: 'Premium Domain Name',
     description: 'Short, memorable .eth domain for your identity',
     price: 1.49,
-    image: '🌐',
+    image: '/shop_img/primium domain.jpeg',
     category: 'Domains',
   },
   {
@@ -32,7 +32,7 @@ const products = [
     name: 'Music Album Access',
     description: 'Lifetime access to exclusive album collection',
     price: 1.99,
-    image: '🎵',
+    image: '/shop_img/music album.jpeg',
     category: 'Music',
   },
   {
@@ -40,7 +40,7 @@ const products = [
     name: 'Gaming Skin Bundle',
     description: 'Rare skins for popular blockchain games',
     price: 2.49,
-    image: '🎮',
+    image: '/shop_img/game.jpeg',
     category: 'Gaming',
   },
   {
@@ -48,7 +48,7 @@ const products = [
     name: 'Course Access Pass',
     description: 'Full Web3 development bootcamp access',
     price: 2.99,
-    image: '📚',
+    image: '/shop_img/course access.jpeg',
     category: 'Education',
   },
   {
@@ -56,7 +56,7 @@ const products = [
     name: 'Coffee Subscription',
     description: 'One month of premium coffee delivery',
     price: 1.29,
-    image: '☕',
+    image: '/shop_img/coffee subs.jpeg',
     category: 'Lifestyle',
   },
   {
@@ -64,7 +64,7 @@ const products = [
     name: 'VIP Event Ticket',
     description: 'Access to exclusive Web3 conference',
     price: 2.79,
-    image: '🎟️',
+    image: '/shop_img/vip tickets.jpeg',
     category: 'Events',
   },
   {
@@ -72,7 +72,7 @@ const products = [
     name: 'E-Book Bundle',
     description: 'Collection of crypto and blockchain books',
     price: 0.79,
-    image: '📖',
+    image: '/shop_img/ebook.jpeg',
     category: 'Education',
   },
 ]
@@ -117,12 +117,13 @@ export default function ShopPage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 bg-black">
+    <div className="min-h-screen relative">
+      <div className="relative z-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white flex items-center space-x-3">
+            <h1 className="text-4xl font-bold flex items-center space-x-3 iceberg-regular">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-red-600 rounded-xl flex items-center justify-center">
                 <ShoppingBag className="w-5 h-5 text-white" />
               </div>
@@ -132,7 +133,7 @@ export default function ShopPage() {
           </div>
 
           {isConnected && (
-            <div className="bg-black border border-gray-800 rounded-xl px-6 py-3">
+            <div className="bg-black border  rounded-xl px-6 py-3">
               <p className="text-sm text-gray-400">Available Credit</p>
               <p className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-red-400 bg-clip-text text-transparent">
                 ${formattedCreditLimit.toFixed(2)} USDC
@@ -257,6 +258,7 @@ export default function ShopPage() {
             product={selectedProduct}
           />
         )}
+      </div>
       </div>
     </div>
   )

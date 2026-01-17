@@ -1,6 +1,8 @@
 'use client'
 
 import { ShoppingBag } from 'lucide-react'
+import Image from 'next/image'
+import MagicBorderButton from './ui/button'
 
 interface Product {
   id: string
@@ -29,11 +31,24 @@ const productGradients: Record<string, string> = {
 }
 
 export default function ProductCard({ product, onBuyNow, disabled }: ProductCardProps) {
+  // Check if image is a file path or emoji
+  const isImagePath = product.image.startsWith('/');
+
   return (
     <div className="bg-black rounded-2xl overflow-hidden border border-gray-800 hover:border-gray-700 transition-all duration-300 hover:shadow-lg hover:shadow-blue-900/10">
       {/* Product Image */}
       <div className={`h-48 bg-gradient-to-br ${productGradients[product.id] || 'from-gray-800 to-gray-900'} flex items-center justify-center relative overflow-hidden`}>
-        <span className="text-6xl z-10">{product.image}</span>
+        {isImagePath ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        ) : (
+          <span className="text-6xl z-10">{product.image}</span>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
       </div>
 
@@ -55,22 +70,20 @@ export default function ProductCard({ product, onBuyNow, disabled }: ProductCard
             <span className="text-xl font-bold text-white">${product.price.toFixed(2)} <span className="text-sm font-normal text-gray-400">USDC</span></span>
           </div>
           
-          <button
-            onClick={(e) => {
+          <MagicBorderButton
+            onClick={(e: React.MouseEvent) => {
               e.preventDefault();
               e.stopPropagation();
               onBuyNow();
             }}
             disabled={disabled}
-            className={`px-4 py-2.5 rounded-lg font-medium transition-all flex items-center justify-center space-x-2 flex-shrink-0 ${
-              disabled
-                ? 'bg-gray-900/50 text-gray-500 cursor-not-allowed border border-gray-800'
-                : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 border border-blue-500/30 shadow-lg hover:shadow-blue-500/10'
-            }`}
+            className={disabled ? 'opacity-50 cursor-not-allowed' : ''}
           >
-            <ShoppingBag className="w-4 h-4" />
-            <span>Buy Now</span>
-          </button>
+            <span className="flex items-center justify-center space-x-2">
+              <ShoppingBag className="w-4 h-4" />
+              <span>Buy Now</span>
+            </span>
+          </MagicBorderButton>
         </div>
       </div>
     </div>

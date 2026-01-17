@@ -5,7 +5,10 @@ import { useAccount } from 'wagmi'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useIsAdmin } from '@/hooks/useIsAdmin'
-import { Wallet, TrendingUp, Shield, Zap, CreditCard, ArrowRight, CheckCircle } from 'lucide-react'
+import { Zap, ArrowRight, CheckCircle } from 'lucide-react'
+import CryptoLogoMarquee from '@/components/CryptoLogoMarquee'
+import MagicBorderButton from '@/components/ui/button'
+import ScrollVelocity from '@/components/ScrollVelocity'
 import Link from 'next/link'
 
 export default function HomePage() {
@@ -20,24 +23,6 @@ export default function HomePage() {
     }
   }, [isConnected, isAdmin, router])
 
-  const features = [
-    {
-      icon: <CreditCard className="w-6 h-6" />,
-      title: "Start with 10 USDC",
-      description: "Get instant credit without collateral. No credit history required."
-    },
-    {
-      icon: <TrendingUp className="w-6 h-6" />,
-      title: "Build Trust Score",
-      description: "Earn points with every repayment. Your score unlocks higher limits."
-    },
-    {
-      icon: <Shield className="w-6 h-6" />,
-      title: "Secure & Transparent",
-      description: "All transactions on Polygon. Full transparency, no hidden fees."
-    },
-  ]
-
   const steps = [
     { number: "1", title: "Connect Wallet", description: "Link your Web3 wallet to get started" },
     { number: "2", title: "Shop with Credit", description: "Browse products and buy now, pay later" },
@@ -45,11 +30,13 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+    <div className="min-h-screen relative">
+      {/* Content wrapper with proper z-index */}
+      <div className="relative z-10">
       {/* Hero Section */}
-      <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center space-y-8">
+      <section className="relative pt-32 pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden min-h-[80vh] flex items-center justify-center">
+        <div className="max-w-7xl mx-auto relative z-10 text-center">
+          <div className="space-y-8">
             {/* Badge */}
             <div className="inline-flex items-center space-x-2 bg-blue-900/30 text-blue-300 px-4 py-2 rounded-full text-sm font-medium border border-blue-800/50">
               <Zap className="w-4 h-4" />
@@ -57,12 +44,14 @@ export default function HomePage() {
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white leading-tight">
-              Build Credit,
+            <h1 className="leading-tight open-sans">
+              <div className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white">
+                Build Credit, Using Web3
+              </div>
               <br />
-              <span className="bg-gradient-to-r from-blue-600 to-red-600 bg-clip-text text-transparent">
+              <div className="text-6xl sm:text-7xl lg:text-8xl font-bold text-white">
                 Unlock Freedom
-              </span>
+              </div>
             </h1>
 
             {/* Subheading */}
@@ -74,12 +63,13 @@ export default function HomePage() {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
               {isConnected ? (
-                <Link
-                  href="/dashboard"
-                  className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-red-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center space-x-2"
-                >
-                  <span>Go to Dashboard</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <Link href="/dashboard">
+                  <MagicBorderButton>
+                    <span className="flex items-center space-x-2">
+                      <span>Go to Dashboard</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </MagicBorderButton>
                 </Link>
               ) : (
                 <div className="flex flex-col items-center space-y-2">
@@ -88,42 +78,115 @@ export default function HomePage() {
                 </div>
               )}
               
-              <Link
-                href="/shop"
-                className="px-8 py-4 border-2 border-gray-700 text-gray-300 rounded-xl font-semibold text-lg hover:border-blue-500 hover:text-white transition-all"
-              >
-                Browse Shop
+              <Link href="/shop">
+                <MagicBorderButton>Browse Shop</MagicBorderButton>
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-900">
+      {/* Crypto Logo Marquee Section */}
+      <CryptoLogoMarquee />
+
+      {/* Features Section - Bento Grid */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl sm:text-5xl font-bold mb-4 iceberg-regular">
               Why Choose OnMint?
             </h2>
-            <p className="text-lg text-gray-300">
+            <p className="text-xl text-gray-300">
               The first truly under-collateralized BNPL for Web3
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="p-6 rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 hover:shadow-lg transition-shadow"
-              >
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-red-600 rounded-xl flex items-center justify-center text-white mb-4">
-                  {feature.icon}
+          {/* Bento Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
+            
+            {/* Card 1 - Start with 10 USDC (Large - Left Top) */}
+            <div className="md:col-span-1 lg:col-span-1 md:row-span-2">
+              <div className="h-full rounded-3xl bg-gradient-to-br from-gray-900 to-gray-950 border border-red-800/30 p-8 flex flex-col justify-between hover:border-red-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/10">
+                <div>
+                  <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-6">
+                    💳
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">
+                    Start with 10 USDC
+                  </h3>
+                  <p className="text-gray-400 leading-relaxed">
+                    Get instant credit without collateral. No credit history required.
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-300">{feature.description}</p>
+                <div className="mt-8 pt-6 border-t border-red-800/20">
+                  <div className="text-sm text-gray-500 mb-2">INSTANT ACCESS</div>
+                  <div className="text-3xl font-bold text-transparent bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text">
+                    $10 USDC
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
+
+            {/* Card 2 - Build Trust Score (Medium - Right Top) */}
+            <div className="md:col-span-1 lg:col-span-1">
+              <div className="rounded-3xl bg-gradient-to-br from-red-0 to-red-950 border border-red-800/30 p-8 hover:border-red-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/10">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-6">
+                  ⭐
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  Build Trust Score
+                </h3>
+                <p className="text-gray-400 leading-relaxed">
+                  Earn points with every repayment. Your score unlocks higher limits.
+                </p>
+                <div className="mt-6 flex items-center justify-between">
+                  <div className="text-sm text-gray-500">Score Progress</div>
+                  <div className="text-xl font-bold text-cyan-400">↑ 50pts</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 3 - Secure & Transparent (Medium - Right Middle) */}
+            <div className="md:col-span-1 lg:col-span-1">
+              <div className="rounded-3xl bg-gradient-to-br from-gray-900 via-red-950/20 to-gray-950 border border-red-800/30 p-8 hover:border-red-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/10">
+                <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center text-white text-2xl mb-6">
+                  🔐
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-3">
+                  Secure & Transparent
+                </h3>
+                <p className="text-gray-400 leading-relaxed">
+                  All transactions on Polygon. Full transparency, no hidden fees.
+                </p>
+                <div className="mt-6">
+                  <div className="text-sm text-green-400 font-medium">✓ Audited & Secure</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Wide Card - Web3 Features */}
+            <div className="md:col-span-2 lg:col-span-2">
+              <div className="rounded-3xl bg-gradient-to-br from-gray-900 via-red-950/20 to-gray-950 border border-red-800/30 p-8 hover:border-red-600/50 transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/10">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                  <div>
+                    <div className="text-sm text-gray-500 mb-2">BLOCKCHAIN</div>
+                    <div className="text-2xl font-bold text-white">Polygon Amoy</div>
+                    <p className="text-sm text-gray-400 mt-1">Low fees, fast transactions</p>
+                  </div>
+                  <div>
+                    <div className="text-sm text-gray-500 mb-2">STABLECOIN</div>
+                    <div className="text-2xl font-bold text-transparent bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text">Circle USDC</div>
+                    <p className="text-sm text-gray-400 mt-1">$1 USD backed</p>
+                  </div>
+                  <div className="col-span-2 md:col-span-1">
+                    <div className="text-sm text-gray-500 mb-2">VERIFICATION</div>
+                    <div className="text-2xl font-bold text-transparent bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text">ZK Proofs</div>
+                    <p className="text-sm text-gray-400 mt-1">Privacy-preserving</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
@@ -132,7 +195,7 @@ export default function HomePage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 iceberg-regular">
               How It Works
             </h2>
             <p className="text-lg text-gray-300">
@@ -144,14 +207,14 @@ export default function HomePage() {
             {steps.map((step, index) => (
               <div key={index} className="relative">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-800 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
                     {step.number}
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
                   <p className="text-gray-300">{step.description}</p>
                 </div>
                 {index < steps.length - 1 && (
-                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-blue-700 to-red-700" />
+                  <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-red-700 to-red-500" />
                 )}
               </div>
             ))}
@@ -160,23 +223,23 @@ export default function HomePage() {
       </section>
 
       {/* Credit Score Preview */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-red-600">
+      <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto text-center text-white">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-6 iceberg-regular">
             Your Trust Score Journey
           </h2>
           <div className="grid grid-cols-3 gap-4 mb-8">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+            <div className="bg-red-900/30 backdrop-blur-sm rounded-xl p-6 border border-red-800/50">
               <p className="text-sm opacity-80 mb-1">Start</p>
               <p className="text-3xl font-bold">0</p>
               <p className="text-sm opacity-80 mt-1">10 USDC limit</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+            <div className="bg-red-900/30 backdrop-blur-sm rounded-xl p-6 border border-red-800/50">
               <p className="text-sm opacity-80 mb-1">After 5 loans</p>
               <p className="text-3xl font-bold">50</p>
               <p className="text-sm opacity-80 mt-1">35 USDC limit</p>
             </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6">
+            <div className="bg-red-900/30 backdrop-blur-sm rounded-xl p-6 border border-red-800/50">
               <p className="text-sm opacity-80 mb-1">Power User</p>
               <p className="text-3xl font-bold">100+</p>
               <p className="text-sm opacity-80 mt-1">60+ USDC limit</p>
@@ -195,17 +258,38 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Scroll Velocity Section */}
+      <section className="py-16 px-4 overflow-hidden">
+        <div className="space-y-4">
+          {/* Left to Right */}
+          <ScrollVelocity
+            texts={['Built for Web3 Hackathon 2026 • Powered by Polygon Amoy & Circle USDC']}
+            velocity={50}
+            className="text-white text-2xl font-bold"
+            parallaxStyle={{ width: '100%' }}
+            scrollerStyle={{ gap: '2rem' }}
+          />
+          
+          {/* Right to Left */}
+          <ScrollVelocity
+            texts={['Built for Web3 Hackathon 2026 • Powered by Polygon Amoy & Circle USDC']}
+            velocity={-50}
+            className="text-white text-2xl font-bold"
+            parallaxStyle={{ width: '100%' }}
+            scrollerStyle={{ gap: '2rem' }}
+          />
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t border-gray-800 py-8 px-4 bg-gray-900">
-        <div className="max-w-7xl mx-auto text-center text-gray-400">
-          <p className="text-sm">
-            Built with ❤️ for Web3 Hackathon 2026 • Powered by Polygon Amoy & Circle USDC
-          </p>
-          <p className="text-xs mt-2 text-gray-500">
+      <footer className="border-t border-red-900 py-8 px-4">
+        <div className="max-w-7xl mx-auto text-center relative z-10">
+          <p className="text-xs text-gray-500">
             Admin: 0x74E36...1C34 • Merchant: 0xF92e0D...f4C4
           </p>
         </div>
       </footer>
+      </div>
     </div>
   )
 }

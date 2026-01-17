@@ -138,7 +138,7 @@ export default function ZKProofPage() {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-purple-100 rounded-full mb-4">
             <Shield className="w-10 h-10 text-purple-600" />
           </div>
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold mb-2 iceberg-regular">
             Privacy-Preserving Credit Boost
           </h1>
           <p className="text-gray-600 text-lg">

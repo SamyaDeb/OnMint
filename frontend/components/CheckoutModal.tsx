@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { parseUnits } from 'viem'
-import { X, Store, CreditCard, Clock, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
+import { X, Store, Clock, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { useCreateLoan, useAvailableCredit } from '@/hooks/useContracts'
+import MagicBorderButton from './ui/button'
 import { MERCHANT_ADDRESS, BNPL_CORE_ADDRESS } from '@/lib/constants'
 import { BNPL_CORE_ABI } from '@/lib/contracts'
 import toast from 'react-hot-toast'
@@ -150,17 +151,13 @@ export default function CheckoutModal({ product, isOpen, onClose, onSuccess }: C
               )}
 
               {/* Confirm Button */}
-              <button
+              <MagicBorderButton
                 onClick={handleConfirmPurchase}
                 disabled={!hasEnoughCredit || isPending}
-                className={`w-full py-4 rounded-xl font-semibold text-lg transition-all ${
-                  hasEnoughCredit
-                    ? 'bg-gradient-to-r from-blue-600 to-red-600 text-white hover:from-blue-700 hover:to-red-700 shadow-lg hover:shadow-xl'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                }`}
+                className="w-full"
               >
-                Confirm BNPL Purchase
-              </button>
+                <span className="text-base">Confirm BNPL Purchase</span>
+              </MagicBorderButton>
             </div>
           )}
 

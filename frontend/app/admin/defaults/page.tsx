@@ -256,7 +256,7 @@ export default function DefaultManagementPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Default Management</h1>
+          <h1 className="text-4xl font-bold mb-2 iceberg-regular">Default Management</h1>
           <p className="text-gray-600">Manage loan defaults, grace periods, and user blacklist</p>
         </div>
 
