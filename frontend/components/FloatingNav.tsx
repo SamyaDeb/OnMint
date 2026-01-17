@@ -1,0 +1,179 @@
+'use client'
+
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { cn } from '@/lib/utils'
+import { Poppins } from 'next/font/google'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
+
+import { useAccount } from 'wagmi'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useIsAdmin } from '@/hooks/useIsAdmin'
+import { LayoutDashboard, ShoppingBag, CreditCard, Wallet, Copy } from 'lucide-react'
+import { ReactNode } from 'react'
+
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+})
+
+interface NavItem {
+  name: string
+  link: string
+  icon?: ReactNode
+}
+
+export const FloatingNav = ({
+  navItems,
+  className,
+}: {
+  navItems?: NavItem[]
+  className?: string
+}) => {
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const { address, isConnected } = useAccount()
+  const isAdmin = useIsAdmin()
+  const router = useRouter()
+
+  React.useEffect(() => {
+    if (isConnected) {
+      router.push('/dashboard')
+    } else {
+      router.push('/')
+    }
+  }, [isConnected, router])
+
+  const getScale = (index: number) => {
+    if (hoveredIndex === null) return 1
+    if (index === hoveredIndex) {
+      return 1.2
+    }
+    return 1
+  }
+
+  const copyAddress = async () => {
+    if (!address) return
+    try {
+      await navigator.clipboard.writeText(address)
+      // Successfully copied
+    } catch {
+      // Failed to copy
+    }
+  }
+
+  // Default nav items if not provided
+  const defaultNavItems = isConnected
+    ? isAdmin
+      ? [
+          { name: 'Dashboard', link: '/admin/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+          { name: 'Loans', link: '/admin/loans', icon: <CreditCard className="w-4 h-4" /> },
+          { name: 'Liquidity', link: '/admin/liquidity', icon: <Wallet className="w-4 h-4" /> },
+        ]
+      : [
+          { name: 'Dashboard', link: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
+          { name: 'Shop', link: '/shop', icon: <ShoppingBag className="w-4 h-4" /> },
+        ]
+    : []
+
+  const items = navItems || defaultNavItems
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        initial={{
+          opacity: 0,
+          y: -100,
+        }}
+        animate={{
+          y: 0,
+          opacity: 1,
+        }}
+        transition={{
+          duration: 0.8,
+          type: 'spring',
+          stiffness: 50,
+          damping: 15,
+        }}
+        className={cn(
+          'fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-4xl border border-white/10 dark:border-gray-300/20 rounded-3xl bg-gray-900/10 backdrop-blur-xl shadow-2xl shadow-black/20 z-50 px-6 py-3 flex items-center justify-between space-x-4 relative overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10',
+          className,
+        )}
+      >
+        {/* Animated gradient background */}
+        <motion.div
+          className="absolute inset-0 z-[-1] bg-gradient-to-r from-white/5 via-gray-100/10 to-white/5 rounded-3xl"
+          animate={{
+            scale: [1, 1.03, 0.97, 1.02, 1],
+            y: [0, -2, 3, -2, 0],
+            rotate: [0, 0.5, -0.5, 0.3, 0],
+            opacity: [0.3, 0.5, 0.4, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Number.POSITIVE_INFINITY,
+            ease: 'easeInOut',
+            times: [0, 0.25, 0.5, 0.75, 1],
+          }}
+        />
+
+        {/* Logo Section */}
+        <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
+          <Image
+            src="/onmint-logo.svg"
+            alt="OnMint Logo"
+            width={32}
+            height={32}
+            priority
+          />
+          <span className={cn('text-lg font-semibold text-white hidden sm:inline', poppins.className)}>
+            OnMint
+          </span>
+        </Link>
+
+        {/* Navigation Items */}
+        <div className="hidden md:flex items-center space-x-6 flex-1 justify-center">
+          {items.map((navItem: NavItem, idx: number) => (
+            <motion.div
+              key={`link-${idx}`}
+              onHoverStart={() => setHoveredIndex(idx)}
+              onHoverEnd={() => setHoveredIndex(null)}
+              scale={getScale(idx)}
+            >
+              <Link
+                href={navItem.link}
+                className="relative text-white/80 hover:text-white items-center flex space-x-1 text-sm font-medium transition-colors duration-200 group"
+              >
+                {navItem.icon && <span className="group-hover:scale-110 transition-transform">{navItem.icon}</span>}
+                <span>{navItem.name}</span>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Wallet Connection Section */}
+        <div className="flex items-center space-x-2 flex-shrink-0">
+          {isConnected ? (
+            <div className="flex items-center space-x-2">
+              <button
+                className="bg-white/10 border border-white/20 text-white hover:bg-white/20 text-sm px-4 py-2 rounded-lg flex items-center space-x-2 transition-colors duration-200"
+                onClick={copyAddress}
+              >
+                <Copy className="w-3 h-3" />
+                <span>{address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Connected'}</span>
+              </button>
+            </div>
+          ) : (
+            <ConnectButton
+              accountStatus="address"
+              showBalance={false}
+              chainStatus="icon"
+              label="Connect Wallet"
+            />
+          )}
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  )
+}

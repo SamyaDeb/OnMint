@@ -29,6 +29,7 @@ import {
   Zap
 } from 'lucide-react'
 import Link from 'next/link'
+import MagicBorderButton from '@/components/ui/button'
 import toast from 'react-hot-toast'
 
 export default function RepayPage() {
@@ -58,7 +59,6 @@ export default function RepayPage() {
   const userBalance = Number(usdcBalance) / 1e6
   
   const dueDate = hasActiveLoan ? new Date(Number(activeLoan.dueDate) * 1000) : new Date()
-  const createdAt = hasActiveLoan ? new Date(Number(activeLoan.createdAt) * 1000) : new Date()
   
   // Calculate if early payment (within first 4 days of 7-day loan)
   const now = new Date()
@@ -298,7 +298,7 @@ export default function RepayPage() {
             <div className="flex items-center space-x-3">
               <CreditCard className="w-8 h-8" />
               <div>
-                <h1 className="text-2xl font-bold">Repay Loan</h1>
+                <h1 className="text-2xl font-bold iceberg-regular">Repay Loan</h1>
                 <p className="text-blue-100">Complete your repayment</p>
               </div>
             </div>
@@ -508,59 +508,65 @@ export default function RepayPage() {
 
                 {/* Action Button */}
                 {step === 'approve' ? (
-                  <button
+                  <MagicBorderButton
                     onClick={handleApprove}
                     disabled={isApproving}
-                    className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2 disabled:opacity-50"
+                    className="w-full"
                   >
-                    {isApproving ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Approving...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Wallet className="w-5 h-5" />
-                        <span>Approve USDC</span>
-                      </>
-                    )}
-                  </button>
+                    <span className="flex items-center justify-center space-x-2">
+                      {isApproving ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Approving...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Wallet className="w-4 h-4" />
+                          <span>Approve USDC</span>
+                        </>
+                      )}
+                    </span>
+                  </MagicBorderButton>
                 ) : paymentMode === 'full' ? (
-                  <button
+                  <MagicBorderButton
                     onClick={handleFullRepay}
                     disabled={isRepaying}
-                    className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2 disabled:opacity-50"
+                    className="w-full"
                   >
-                    {isRepaying ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Processing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle className="w-5 h-5" />
-                        <span>Pay ${remaining.toFixed(2)} USDC</span>
-                      </>
-                    )}
-                  </button>
+                    <span className="flex items-center justify-center space-x-2">
+                      {isRepaying ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Pay ${remaining.toFixed(2)} USDC</span>
+                        </>
+                      )}
+                    </span>
+                  </MagicBorderButton>
                 ) : (
-                  <button
+                  <MagicBorderButton
                     onClick={handleInstallmentPayment}
                     disabled={isPayingInstallment || !installmentAmount || parseFloat(installmentAmount) <= 0}
-                    className="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-semibold flex items-center justify-center space-x-2 disabled:opacity-50"
+                    className="w-full"
                   >
-                    {isPayingInstallment ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>Processing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <DollarSign className="w-5 h-5" />
-                        <span>Pay Installment #{installmentNumber}</span>
-                      </>
-                    )}
-                  </button>
+                    <span className="flex items-center justify-center space-x-2">
+                      {isPayingInstallment ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Processing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <DollarSign className="w-4 h-4" />
+                          <span>Pay Installment #{installmentNumber}</span>
+                        </>
+                      )}
+                    </span>
+                  </MagicBorderButton>
                 )}
 
                 {/* Info Note */}

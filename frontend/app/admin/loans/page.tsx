@@ -128,7 +128,7 @@ export default function AdminLoansPage() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center space-x-3">
+            <h1 className="text-3xl font-bold flex items-center space-x-3 iceberg-regular">
               <Users className="w-8 h-8" />
               <span>All Loans</span>
             </h1>

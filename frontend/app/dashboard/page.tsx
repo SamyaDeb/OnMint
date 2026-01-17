@@ -20,6 +20,7 @@ import {
   Zap
 } from 'lucide-react'
 import Link from 'next/link'
+import MagicBorderButton from '@/components/ui/button'
 
 export default function DashboardPage() {
   const { address, isConnected } = useAccount()
@@ -61,12 +62,12 @@ export default function DashboardPage() {
   const formattedCreditLimit = creditLimit / 1e6
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br  via-black to-gray-900 py-8 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-white">
+            <h1 className="text-4xl font-bold iceberg-regular">
               Welcome Back! 👋
             </h1>
             <p className="text-gray-300 mt-2 flex items-center space-x-2">
@@ -76,21 +77,21 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/shop"
-              className="group relative px-6 py-3 bg-gradient-to-r from-blue-600 to-red-600 text-white rounded-xl font-semibold hover:shadow-xl transform hover:-translate-y-0.5 transition-all flex items-center space-x-2"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              <span>Shop Now</span>
-              <span className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-red-400 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+            <Link href="/shop">
+              <MagicBorderButton>
+                <span className="flex items-center space-x-2">
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Shop Now</span>
+                </span>
+              </MagicBorderButton>
             </Link>
-            <Link
-              href="/zkproof"
-              className="group relative px-6 py-3 border-2 border-gray-700 text-gray-300 rounded-xl font-semibold hover:border-blue-500 hover:text-white transition-all flex items-center space-x-2"
-            >
-              <Zap className="w-5 h-5" />
-              <span>ZK Boost</span>
-              <span className="absolute -bottom-1 left-0 w-full h-1 bg-blue-500 rounded-full scale-x-0 group-hover:scale-x-100 transition-transform"></span>
+            <Link href="/zkproof">
+              <MagicBorderButton>
+                <span className="flex items-center space-x-2">
+                  <Zap className="w-4 h-4" />
+                  <span>ZK Boost</span>
+                </span>
+              </MagicBorderButton>
             </Link>
           </div>
         </div>
@@ -157,12 +158,13 @@ export default function DashboardPage() {
                   <p className="text-gray-600">
                     You have <span className="font-bold text-blue-600">${formattedCreditLimit.toFixed(2)} USDC</span> credit available!
                   </p>
-                  <Link
-                    href="/shop"
-                    className="inline-flex items-center justify-center w-full space-x-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:shadow-xl transition-all"
-                  >
-                    <span>Browse Shop</span>
-                    <ArrowRight className="w-5 h-5" />
+                  <Link href="/shop" className="w-full inline-block">
+                    <MagicBorderButton className="w-full">
+                      <span className="flex items-center justify-center space-x-2">
+                        <span>Browse Shop</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
+                    </MagicBorderButton>
                   </Link>
                 </div>
               </div>
