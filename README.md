@@ -2,6 +2,9 @@
 
 **Build Credit, Unlock Freedom** - Web3's First Trust-Based Payment Layer
 
+<img width="1464" height="805" alt="OnMint" src="https://github.com/user-attachments/assets/c1960337-af9a-4bf1-8a49-50ea3ac587e0" />
+
+
 ## 🎯 Project Overview
 
 OnMint is a decentralized Buy Now, Pay Later (BNPL) protocol that enables users to build credit scores in Web3 through responsible repayment behavior. Users start with 10 USDC credit at Trust Score 0 and grow their purchasing power by repaying on time.
